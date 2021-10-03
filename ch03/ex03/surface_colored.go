@@ -22,38 +22,51 @@ func main() {
 		"width='%d' height='%d'>", width, height)
 	for i := 0; i < cells; i++ {
 		for j := 0; j < cells; j++ {
-			ax, ay, err := corner(i+1, j)
+			ax, ay, _, err := corner(i+1, j)
 			if err != nil {
 				continue
 			}
-			bx, by, err := corner(i, j)
+			bx, by, bz, err := corner(i, j)
 			if err != nil {
 				continue
 			}
-			cx, cy, err := corner(i, j+1)
+			cx, cy, _, err := corner(i, j+1)
 			if err != nil {
 				continue
 			}
-			dx, dy, err := corner(i+1, j+1)
+			dx, dy, dz, err := corner(i+1, j+1)
 			if err != nil {
 				continue
 			}
-			fmt.Printf("<polygon points='%g,%g %g,%g %g,%g %g,%g'/>", ax, ay, bx, by, cx, cy, dx, dy)
+
+			_, _, b1, _ := corner(i-1, j)
+			_, _, b2, _ := corner(i, j-1)
+			_, _, d1, _ := corner(i+1+1, j+1)
+			_, _, d2, _ := corner(i+1, j+1+1)
+
+			color := "#ffffff"
+			if bz >= math.Max(b1, b2){
+				color = "#ff0000"
+			}else if dz <= math.Min(d1, d2) {
+				color = "#0000ff"
+			}
+			fmt.Printf("<polygon points='%g,%g %g,%g %g,%g %g,%g' style='fill:%s;'/>", ax, ay, bx, by, cx, cy, dx, dy, color)
 		}
 	}
 	fmt.Println("</svg>")
 }
 
-func corner(i, j int) (float64, float64, error) {
+//sxとsyは、x, y, zを2次元に変換したもの
+func corner(i, j int) (float64, float64, float64, error) {
 	x := xyrange * (float64(i)/cells - 0.5)
 	y := xyrange * (float64(j)/cells - 0.5)
 	z := f(x, y)
 	if math.IsNaN(z) || math.IsInf(z, 0) || math.IsInf(z, -1) {
-		return 0, 0, fmt.Errorf("err")
+		return 0, 0, 0, fmt.Errorf("err")
 	}
 	sx := width/2 + (x-y)*cos30*xyscale
 	sy := height/2 + (x+y)*sin30*xyscale - z*zscale
-	return sx, sy, nil
+	return sx, sy, z, nil
 }
 
 func f(x, y float64) float64 {
