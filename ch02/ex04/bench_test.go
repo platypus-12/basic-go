@@ -6,14 +6,20 @@ import (
 	"testing"
 )
 
+var result int
+
 func BenchmarkPopCount(b *testing.B) {
+	var r int
 	for i := uint64(0); i < uint64(b.N); i++ {
-		popcount.PopCount(i)
+		r += popcount.PopCount(i)
 	}
+	result = r
 }
 
 func BenchmarkBitShiftPopCount(b *testing.B) {
+	var r int
 	for i := uint64(0); i < uint64(b.N); i++ {
-		bitshiftpopcount.BitShiftPopCount(i)
+		r += bitshiftpopcount.BitShiftPopCount(i)
 	}
+	result = r
 }
