@@ -17,13 +17,13 @@ type IssuesSearchResult struct {
 }
 
 type Issue struct {
-	Number    int
-	HTMMLURL  string `json:"html_url"`
-	Title     string
-	State     string
-	User      *User
-	CreatedAt time.Time `json:"created_at"`
-	Body      string
+	Number    int    `json:",omitempty"`
+	HTMMLURL  string `json:"html_url,omitempty"`
+	Title     string `json:",omitempty"`
+	State     string `json:",omitempty"`
+	User      *User `json:",omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	Body      string `json:",omitempty"`
 }
 
 type User struct {
