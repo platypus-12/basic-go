@@ -1,0 +1,26 @@
+package main
+
+import "fmt"
+import "unicode"
+
+func del_duplicated(bytes []byte) []byte {
+	j := 0
+	var tmp byte
+	for i := 0; i <len(bytes); i++ {
+		if !unicode.IsSpace(tmp) {
+			bytes[j] = bytes[i]
+			j++
+		}
+		tmp = bytes[i]
+	}
+	return bytes[:j]
+}
+
+
+func main() {
+	data := "sample      sssaaa   daw"
+	data_byte := []byte(data)
+	fmt.Println(data_byte)
+	//fmt.Printf("%q\n", del_duplicated(data[:]))
+	//fmt.Printf("%q\n", del_duplicated(data1[:]))
+}
