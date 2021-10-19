@@ -7,6 +7,8 @@ import (
 func main() {
 	fmt.Println(isAnagram("asdfg", "sadfg"))
 	fmt.Println(isAnagram("aaab", "abbb"))
+	fmt.Println(isAnagram("日本語", "語日本"))
+	fmt.Println(isAnagram("", ""))
 }
 
 func isAnagram(s1 string, s2 string) bool {
