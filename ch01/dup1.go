@@ -12,7 +12,7 @@ func main() {
 	for input.Scan() {
 		counts[input.Text()]++
 	}
-	
+
 	fmt.Println("")
 	for line, n := range counts {
 		if n > 1 {
