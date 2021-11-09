@@ -10,7 +10,7 @@ import (
 func main() {
 	doc, err := html.Parse(os.Stdin)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "outline:")
+		fmt.Fprintf(os.Stderr, "outline: %v¥n", err)
 		os.Exit(1)
 	}
 	outline(nil, doc)

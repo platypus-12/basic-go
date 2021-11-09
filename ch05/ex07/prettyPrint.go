@@ -23,17 +23,36 @@ func main() {
 			fmt.Fprintf(os.Stderr, "parsing HTML: %s¥n", err)
 			continue
 		}
-		fmt.Println(url)
 		forEachNode(doc, startElement, endElement)
 	}
 }
 
 func startElement(n *html.Node) {
-	if n.Type == html.ElementNode {
-		fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
+	if n.Type == html.ElementNode && n.FirstChild != nil {
+		fmt.Printf("%*s<%s", depth*2, "", n.Data)
+		for _, v := range n.Attr {
+			fmt.Printf(" %s=\"%s\"", v.Key, v.Val)
+		}
+		fmt.Printf(">\n")
 		depth++
+		return
 	}
-
+	if n.Type == html.ElementNode && n.FirstChild == nil {
+		fmt.Printf("%*s<%s", depth*2, "", n.Data)
+		for _, v := range n.Attr {
+			fmt.Printf(" %s=\"%s\"", v.Key, v.Val)
+		}
+		fmt.Printf("/>\n")
+		return
+	}
+	if n.Type == html.CommentNode {
+		fmt.Println("<!--", n.Data, "-->")
+		return
+	}
+	if n.Type == html.TextNode {
+		fmt.Println(n.Data)
+		return
+	}
 }
 
 func endElement(n *html.Node) {
@@ -50,7 +69,7 @@ func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
 		forEachNode(c, pre, post)
 	}
-	if post != nil {
+	if post != nil && n.FirstChild != nil {
 		post(n)
 	}
 }
