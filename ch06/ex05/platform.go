@@ -5,17 +5,19 @@ import (
 	"fmt"
 )
 
+const cpuRegisterSize = 32 << (^uint(0) >> 63)
+
 type IntSet struct {
-	words []uint64
+	words []uint
 }
 
 func (s *IntSet) Has(x int) bool {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/cpuRegisterSize, uint(x%cpuRegisterSize)
 	return word < len(s.words) && s.words[word]&(1<<bit) != 0
 }
 
 func (s *IntSet) Add(x int) {
-	word, bit := x/64, uint(x%64)
+	word, bit := x/cpuRegisterSize, uint(x%cpuRegisterSize)
 
 	for word >= len(s.words) {
 		s.words = append(s.words, 0)
@@ -40,12 +42,12 @@ func (s *IntSet) String() string {
 		if word == 0 {
 			continue
 		}
-		for j := 0; j < 64; j++ {
+		for j := 0; j < cpuRegisterSize; j++ {
 			if word&(1<<uint(j)) != 0 {
 				if buf.Len() > len("{") {
 					buf.WriteByte(' ')
 				}
-				fmt.Fprintf(&buf, "%d", 64*i+j)
+				fmt.Fprintf(&buf, "%d", cpuRegisterSize*i+j)
 			}
 
 		}
@@ -60,7 +62,7 @@ func (s *IntSet) Len() (length int) {
 		if word == 0 {
 			continue
 		}
-		for j := 0; j < 64; j++ {
+		for j := 0; j < cpuRegisterSize; j++ {
 			if word&(1<<uint(j)) != 0 {
 				length++
 			}
@@ -73,13 +75,12 @@ func (s *IntSet) Remove(x int) {
 	if len(s.words) == 0 {
 		return
 	}
-	word, bit := x/64, uint(x%64)
+	word, bit := x/cpuRegisterSize, uint(x%cpuRegisterSize)
 	s.words[word] &^= 1 << bit
 }
 
 func (s *IntSet) Clear() {
 	s.words = nil
-
 }
 
 func (s *IntSet) Copy() *IntSet {
@@ -87,7 +88,7 @@ func (s *IntSet) Copy() *IntSet {
 		return nil
 	}
 	var _copy IntSet
-	t := make([]uint64, len(s.words))
+	t := make([]uint, len(s.words))
 	_ = copy(t, s.words)
 	_copy.words = t
 	return &_copy
@@ -128,20 +129,32 @@ func (s *IntSet) SymmetricDifference(t *IntSet) {
 	}
 }
 
+func (s *IntSet) Elems() (elems []uint) {
+	for i, word := range s.words {
+		if word == 0 {
+			continue
+		}
+		for j := 0; j < cpuRegisterSize; j++ {
+			if word&(1<<uint(j)) != 0 {
+				elems = append(elems, uint(cpuRegisterSize*i+j))
+			}
+		}
+	}
+	return elems
+}
+
 func main() {
 	var x, y IntSet
 	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.IntersectWith(&y)
-	fmt.Println((&x).String())
-
-	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.DifferenceWith(&y)
-	fmt.Println(x.String())
-
-	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.SymmetricDifference(&y)
-	fmt.Println(x.String())
+	y.AddAll(3, 144, 3, 5, 3455345)
+	fmt.Println(&x)
+	fmt.Println(x.Has(4))
+	x.Add(111)
+	fmt.Println(&x)
+	fmt.Println(x.Len())
+	x.Remove(144)
+	fmt.Println(&x)
+	for i, v := range x.Elems() {
+		fmt.Println(i, v)
+	}
 }

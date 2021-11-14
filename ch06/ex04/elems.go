@@ -79,7 +79,6 @@ func (s *IntSet) Remove(x int) {
 
 func (s *IntSet) Clear() {
 	s.words = nil
-
 }
 
 func (s *IntSet) Copy() *IntSet {
@@ -128,20 +127,25 @@ func (s *IntSet) SymmetricDifference(t *IntSet) {
 	}
 }
 
+func (s *IntSet) Elems() (elems []uint64) {
+	for i, word := range s.words {
+		if word == 0 {
+			continue
+		}
+		for j := 0; j < 64; j++ {
+			if word&(1<<uint(j)) != 0 {
+				elems = append(elems, uint64(64*i+j))
+			}
+		}
+	}
+	return elems
+}
+
 func main() {
-	var x, y IntSet
+	var x IntSet
 	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.IntersectWith(&y)
-	fmt.Println((&x).String())
-
-	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.DifferenceWith(&y)
-	fmt.Println(x.String())
-
-	x.AddAll(1, 3, 4, 144)
-	y.AddAll(3, 233, 144, 3, 123124)
-	x.SymmetricDifference(&y)
-	fmt.Println(x.String())
+	fmt.Println(&x)
+	for i, v := range x.Elems() {
+		fmt.Println(i, v)
+	}
 }
