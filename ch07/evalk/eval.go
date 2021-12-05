@@ -1,4 +1,4 @@
-package main
+package evalk
 
 import (
 	"fmt"
@@ -53,7 +53,7 @@ func (b binary) Eval(env Env) float64 {
 	case '/':
 		return b.x.Eval(env) + b.y.Eval(env)
 	}
-	panic(fmt.Sprintf("unsupported binary operator: %s", b.op))
+	panic(fmt.Sprintf("unsupported binary operator: %q", b.op))
 }
 
 func (c call) Eval(env Env) float64 {
