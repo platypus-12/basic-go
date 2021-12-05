@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var formula string
-	fmt.Println("in")
+	fmt.Println("enter the formura u wanna calculate!")
 	fmt.Scan(&formula)
 
 	expr, err := eval.Parse(formula)
