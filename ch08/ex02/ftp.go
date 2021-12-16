@@ -21,7 +21,7 @@ type User struct {
 }
 
 func main() {
-	listener, err := net.Listen("tcp", "localhost:2221")
+	listener, err := net.Listen("tcp", "localhost:21")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,7 +108,6 @@ func handleConn(c net.Conn) {
 				fileName += fileInfo.Name() + " "
 			}
 			fileName = fileName[:len(fileName)-1] + "\n"
-			fmt.Println(fileName[:len(fileName)-1])
 			conn.Write([]byte(fileName))
 			io.WriteString(c, "226 Complete ls.\n")
 			conn.Close()
@@ -117,9 +116,7 @@ func handleConn(c net.Conn) {
 				path, _ := filepath.Abs("./")
 				user.current = path
 			}
-			fmt.Println(value)
 			dir := filepath.Join(user.current, value, "/")
-			fmt.Println(dir, "dir")
 			if f, err := os.Stat(dir); os.IsNotExist(err) || !f.IsDir() {
 				io.WriteString(c, "553 Requested action not taken.\n")
 				continue
