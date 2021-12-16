@@ -68,14 +68,14 @@ func handleConn(c net.Conn) {
 			b, _ := strconv.Atoi(_val[5])
 			// https://support.solarwinds.com/SuccessCenter/s/article/PORT-FTP-command?language=en_US
 			user.port = strconv.Itoa(a*256 + b)
-			fmt.Println(user)
 			io.WriteString(c, "200 Port command okay.\n")
-			path, _ := filepath.Abs("./")
-			user.current = path
+			if user.current == "" {
+				path, _ := filepath.Abs("./")
+				user.current = path
+			}
 		case "RETR":
 			conn, _ := net.Dial("tcp", user.address+":"+user.port)
 			io.WriteString(c, "150 File status okay; about to open data connection.\n")
-			fmt.Println(value)
 			targetPath := filepath.Join(user.current, value)
 			content, err := ioutil.ReadFile(targetPath)
 			if err != nil {
@@ -83,10 +83,9 @@ func handleConn(c net.Conn) {
 				conn.Close()
 				continue
 			}
-			// fmt.Println(content)
 			conn.Write(content)
 			conn.Close()
-			io.WriteString(c, "226 Closing data connection.\n")
+			io.WriteString(c, "226 Closing data connection retr.\n")
 		case "PWD":
 			if user.current == "" {
 				path, _ := filepath.Abs("./")
@@ -94,11 +93,23 @@ func handleConn(c net.Conn) {
 			}
 			// io.WriteString(c, user.current+"\n")
 			// io.WriteString(c, "250 Requested file action okay, completed pwd.\n")
-			io.WriteString(c, "250 " + user.current + "\n")
+			io.WriteString(c, "250 "+user.current+"\n")
 		case "LIST":
 			conn, _ := net.Dial("tcp", user.address+":"+user.port)
 			io.WriteString(c, "150 File status okay; about to open data connection.\n")
-			fmt.Println(value)
+			fileInfos, err := ioutil.ReadDir(user.current)
+			if err != nil {
+				io.WriteString(c, "553 "+err.Error()+"Closing data connection.\n")
+				conn.Close()
+				continue
+			}
+			fileName := ""
+			for _, fileInfo := range fileInfos {
+				fileName += fileInfo.Name() + " "
+			}
+			fileName = fileName[:len(fileName)-1] + "\n"
+			fmt.Println(fileName[:len(fileName)-1])
+			conn.Write([]byte(fileName))
 			io.WriteString(c, "226 Complete ls.\n")
 			conn.Close()
 		case "CWD":
@@ -117,7 +128,7 @@ func handleConn(c net.Conn) {
 			user.current = dir
 			io.WriteString(c, "250 Requested file action okay, completed cwd.\n")
 		case "QUIT":
-			io.WriteString(c, "Service closing control connection.\n")
+			io.WriteString(c, "221 Service closing control connection.\n")
 			c.Close()
 		default:
 			io.WriteString(c, "502 Command not implemented.\n")
