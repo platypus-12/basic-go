@@ -10,8 +10,9 @@ import (
 	"time"
 )
 
-func echo(c net.Conn, shout string, delay time.Duration, wg sync.WaitGroup) {
-	defer wg.Done()
+func echo(c net.Conn, shout string, delay time.Duration, wg *sync.WaitGroup) {
+	defer (*wg).Done()
+	fmt.Println("echo")
 	fmt.Fprintln(c, "\t", strings.ToUpper(shout))
 	time.Sleep(delay)
 	fmt.Fprintln(c, "\t", shout)
@@ -24,9 +25,10 @@ func handleConn(c net.Conn) {
 	input := bufio.NewScanner(c)
 	for input.Scan() {
 		wg.Add(1)
-		go echo(c, input.Text(), 2*time.Second, wg)
+		go echo(c, input.Text(), 2*time.Second, &wg)
 	}
 	wg.Wait()
+	fmt.Println("fin")
 	c.Close()
 }
 
