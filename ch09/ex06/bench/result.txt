@@ -1,0 +1,23 @@
+new 0.7025 ns/op
+old 0.2511 ns/op
+
+並行にした方が時間がかかってしまった、、、、
+
+GOMAXPROCSを変更した結果
+
+$ GOMAXPROCS=1 go run mandelbrot_new.go
+0.4990 ns/op 0.4989 ns/op 0.5536 ns/op
+$ GOMAXPROCS=2 go run mandelbrot_new.go
+0.4812 ns/op 0.5001 ns/op 0.4890 ns/op
+$ GOMAXPROCS=3 go run mandelbrot_new.go
+0.5476 ns/op
+$ GOMAXPROCS=4 go run mandelbrot_new.go
+0.6770 ns/op
+$ GOMAXPROCS=5 go run mandelbrot_new.go
+0.6863 ns/op
+$ GOMAXPROCS=6 go run mandelbrot_new.go
+0.7361 ns/op
+$ GOMAXPROCS=7 go run mandelbrot_new.go
+0.7231 ns/op
+
+最適な値は、2
