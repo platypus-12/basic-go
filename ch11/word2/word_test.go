@@ -54,5 +54,10 @@ func TestIsPalindrome(t *testing.T) {
 			t.Errorf("IsPalindrome(%q) = %v", test.input, got)
 		}
 	}
+}
 
+func BenchmarkIsPalindrome(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		IsPalindrome("A man, a plan, a canal: Panama")
+	}
 }
