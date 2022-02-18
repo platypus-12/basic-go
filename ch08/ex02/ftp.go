@@ -124,6 +124,13 @@ func handleConn(c net.Conn) {
 			// io.WriteString(c, "225 	Data connection open; no transfer in progress.\n")
 			user.current = dir
 			io.WriteString(c, "250 Requested file action okay, completed cwd.\n")
+		case "STOR":
+			conn, _ := net.Dial("tcp", user.address+":"+user.port)
+			io.WriteString(c, "150 File status okay; about to open data connection.\n")
+			buf, _ := ioutil.ReadAll(conn)
+			ioutil.WriteFile(filepath.Join(user.current, value), buf, 0777)
+			conn.Close()
+			io.WriteString(c, "250 Requested file action okay, completed put.\n")
 		case "QUIT":
 			io.WriteString(c, "221 Service closing control connection.\n")
 			c.Close()
